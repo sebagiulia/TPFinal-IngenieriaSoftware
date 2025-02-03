@@ -1,0 +1,328 @@
+\begin{zed}
+  [PID]
+\end{zed}
+
+\begin{zed}
+Senal ::= Activate | Suspend | Kill | KillNow
+\end{zed}
+
+\begin{zed}
+Estado ::= activo | pasivo | muerto
+\end{zed}
+
+\begin{zed}
+MSG ::= ok | errProcExist | errProcSuscrito | sinCambios | errProcNoExistente
+\end{zed}
+
+\begin{schema}{SISTEMA}
+  prim: PID\\
+  ps: PID \pfun  Estado\\
+  suscritos: PID \rel  Senal
+\end{schema}
+
+\begin{axdef}
+  idle: PID
+\end{axdef}
+
+\begin{schema}{SISTEMAInit}
+  SISTEMA
+\where
+  prim = idle\\
+  ps = \emptyset\\
+  suscritos = \emptyset
+\end{schema}
+
+\begin{schema}{SistNuevoProcesoOK}
+  \Delta SISTEMA\\
+  i?: PID\\
+  rep!: MSG
+\where
+  i? \notin  \dom  ps\\
+  prim' = prim\\
+  ps' = ps \cup  \{(i? \mapsto  pasivo)\}\\
+  suscritos' = suscritos\\
+  rep! = ok
+\end{schema}
+
+\begin{schema}{SistProcesoExistenteERR}
+  \Xi SISTEMA\\
+  i?: PID\\
+  rep!: MSG
+\where
+  i? \in  \dom  ps\\
+  rep! = errProcExist
+\end{schema}
+
+\begin{schema}{SistProcesoNoExistenteERR}
+  \Xi SISTEMA\\
+  i?: PID\\
+  rep!: MSG
+\where
+  i? \notin  \dom  ps\\
+  rep! = errProcNoExistente
+\end{schema}
+
+\begin{schema}{SistSuscProcesoOK}
+  \Delta SISTEMA\\
+  i?: PID\\
+  s?: Senal\\
+  rep!: MSG
+\where
+  i? \in  \dom  ps\\
+  prim' = prim\\
+  ps' = ps\\
+  suscritos' = suscritos \cup  \{(i? \mapsto  s?)\}\\
+  rep! = ok
+\end{schema}
+
+\begin{schema}{SistActivateOK}
+  \Delta SISTEMA\\
+  rep!: MSG
+\where
+  \dom  (suscritos \rres  \{Activate\}) \cap  \dom  (ps \rres  \{pasivo\}) \neq  \emptyset\\
+  suscritos' = suscritos\\
+  ps' = ps \oplus  (\dom  (suscritos \rres  \{Activate\}) \cap  \dom  (ps \rres  \{pasivo\}) \cross  \{activo\})\\
+  prim' \in  \dom  (suscritos \rres  \{Activate\}) \cap  \dom  (ps \rres  \{pasivo\})\\
+  rep! = ok
+\end{schema}
+
+\begin{schema}{SistActivateSC}
+  \Xi SISTEMA\\
+  rep!: MSG
+\where
+  \dom  (suscritos \rres  \{Activate\}) \cap  \dom  (ps \rres  \{pasivo\}) = \emptyset\\
+  rep! = sinCambios
+\end{schema}
+
+\begin{schema}{SistSuspendOK}
+  \Delta SISTEMA\\
+  rep!: MSG
+\where
+  \dom  (ps \rres  \{activo\}) \setminus  \dom  (suscritos \rres  \{Suspend\}) \neq  \emptyset\\
+  suscritos' = suscritos\\
+  ps' = ps \oplus  (\dom  (suscritos \rres  \{Suspend\}) \cap  \dom  (ps \rres  \{activo\}) \cross  \{pasivo\})\\
+  prim' \in  \dom  (ps \rres  \{activo\}) \setminus  \dom  (suscritos \rres  \{Suspend\})\\
+  rep! = ok
+\end{schema}
+
+\begin{schema}{SistSuspendIdle}
+  \Delta SISTEMA\\
+  rep!: MSG
+\where
+  \dom  (ps \rres  \{activo\}) \setminus  \dom  (suscritos \rres  \{Suspend\}) = \emptyset\\
+  suscritos' = suscritos\\
+  ps' = ps \oplus  (\dom  (ps \rres  \{activo\}) \cross  \{pasivo\})\\
+  prim' = idle\\
+  rep! = ok
+\end{schema}
+
+\begin{schema}{SistKillNowOK}
+  \Delta SISTEMA\\
+  rep!: MSG
+\where
+  \dom  (ps \rres  \{activo\}) \setminus  \dom  (suscritos \rres  \{KillNow\}) \neq  \emptyset\\
+  suscritos' = suscritos\\
+  ps' = ps \oplus  (\dom  (suscritos \rres  \{KillNow\}) \cap  \dom  (ps \rres  \{activo\}) \cross  \{muerto\})\\
+  prim' \in  \dom  (ps \rres  \{activo\}) \setminus  \dom  (suscritos \rres  \{KillNow\})\\
+  rep! = ok
+\end{schema}
+
+\begin{schema}{SistKillNowIdle}
+  \Delta SISTEMA\\
+  rep!: MSG
+\where
+  \dom  (ps \rres  \{activo\}) \setminus  \dom  (suscritos \rres  \{KillNow\}) = \emptyset\\
+  suscritos' = suscritos\\
+  ps' = ps \oplus  (\dom  (ps \rres  \{activo\}) \cross  \{muerto\})\\
+  prim' = idle\\
+  rep! = ok
+\end{schema}
+
+\begin{schema}{SistKill}
+  \Delta SISTEMA\\
+  rep!: MSG
+\where
+  suscritos' = suscritos\\
+  ps' = ps \oplus  (\dom  (suscritos \rres  \{Kill\}) \cap  \dom  (ps \rres  \{pasivo\}) \cross  \{muerto\})\\
+  prim' = prim\\
+  rep! = ok
+\end{schema}
+
+\begin{schema}{Inv1}
+  SISTEMA
+\where
+  prim = idle \lor  prim \in  \dom  (ps \rres  \{activo\})
+\end{schema}
+
+\begin{zed}
+SistNuevoProceso \defs SistNuevoProcesoOK \lor  SistProcesoExistenteERR
+\end{zed}
+
+\begin{zed}
+SistSuscProceso \defs SistSuscProcesoOK \lor  SistProcesoNoExistenteERR
+\end{zed}
+
+\begin{zed}
+SistActivate \defs SistActivateOK \lor  SistActivateSC
+\end{zed}
+
+\begin{zed}
+SistSuspend \defs SistSuspendOK \lor  SistSuspendIdle
+\end{zed}
+
+\begin{zed}
+SistKillNow \defs SistKillNowOK \lor  SistKillNowIdle
+\end{zed}
+
+\begin{theorem}{InvNP}
+Inv1 \land  SistNuevoProceso \implies  Inv1'
+\end{theorem}
+
+\begin{zproof}[InvNP]
+prove by reduce;
+with normalization reduce;
+prove;
+\end{zproof}
+
+\begin{theorem}{InvSP}
+Inv1 \land  SistSuscProceso \implies  Inv1'
+\end{theorem}
+
+\begin{zproof}[InvSP]
+prove by reduce;
+with normalization reduce;
+\end{zproof}
+
+\begin{theorem}{InvSA}
+Inv1 \land  SistActivate \implies  Inv1'
+\end{theorem}
+
+\begin{zproof}[InvSA]
+with normalization reduce;
+prove by reduce;
+cases;
+apply oplusDef to expression ps \oplus  (\dom  (suscritos \rres  \{Activate\}) \cap  \dom  (ps \rres  \{pasivo\}) \cross  \{activo\});
+prove by reduce;
+apply domDefinition to expression \dom  ((\dom  (suscritos \rres  \{Activate\}) \cap  \dom  (ps \rres  \{pasivo\}) \cross  \{activo\}) \rres  \{activo\});
+prove by reduce;
+next;
+apply oplusDef to expression ps \oplus  (\dom  (suscritos \rres  \{Activate\}) \cap  \dom  (ps \rres  \{pasivo\}) \cross  \{activo\});
+prove by reduce;
+apply domDefinition to expression \dom  ((\dom  (suscritos \rres  \{Activate\}) \cap  \dom  (ps \rres  \{pasivo\}) \cross  \{activo\}) \rres  \{activo\});
+prove by reduce;
+next;
+\end{zproof}
+
+\begin{theorem}{InvSS}
+Inv1 \land  SistSuspend \implies  Inv1'
+\end{theorem}
+
+\begin{zproof}[InvSS]
+prove by reduce;
+apply inDom to predicate prim' \in  \dom  (ps \rres  \{activo\});
+apply inDom to predicate prim' \in  \dom  ((ps \oplus  (\dom  (suscritos \rres  \{Suspend\}) \cap  \dom  (ps \rres  \{activo\}) \cross  \{pasivo\})) \rres  \{activo\});
+apply oplusDef to expression ps \oplus  (\dom  (suscritos \rres  \{Suspend\}) \cap  \dom  (ps \rres  \{activo\}) \cross  \{pasivo\});
+prove by reduce;
+\end{zproof}
+
+\begin{theorem}{InvSKN}
+Inv1 \land  SistKillNow \implies  Inv1'
+\end{theorem}
+
+\begin{zproof}[InvSKN]
+prove by reduce;
+apply inDom to predicate prim' \in  \dom  (ps \rres  \{activo\});
+apply inDom to predicate prim' \in  \dom  ((ps \oplus  (\dom  (suscritos \rres  \{KillNow\}) \cap  \dom  (ps \rres  \{activo\}) \cross  \{muerto\})) \rres  \{activo\});
+apply oplusDef to expression ps \oplus  (\dom  (suscritos \rres  \{KillNow\}) \cap  \dom  (ps \rres  \{activo\}) \cross  \{muerto\});
+prove by reduce;
+\end{zproof}
+
+\begin{theorem}{rule Lemma}[X, Y]
+\forall  A: X; F: X \pfun  Y; x, y: Y | x \neq  y \land  (A, x) \in  F @ (A, y) \notin  F
+\end{theorem}
+
+\begin{zproof}[Lemma]
+prove by reduce;
+apply pfunDef to predicate F \in  X \pfun  Y;
+split F \in  X \rel  Y;
+prove by reduce;
+apply inPower to predicate F \inv [X, Y] \semi [Y, X, Y] F \in  \power  (\id  Y);
+apply compDef to expression F \inv [X, Y] \semi [Y, X, Y] F;
+split \lnot  (A, y) \in  F;
+prove by reduce;
+instantiate e == (x, y);
+prove by reduce;
+instantiate y\_\_0 == A;
+prove by reduce;
+prove by reduce;
+\end{zproof}
+
+\begin{theorem}{InvSK}
+Inv1 \land  SistKill \implies  Inv1'
+\end{theorem}
+
+\begin{zproof}[InvSK]
+prove by reduce;
+apply inDom to predicate prim \in  \dom  (ps \rres  \{activo\});
+apply inDom to predicate prim' \in  \dom  ((ps \oplus  (\dom  (suscritos \rres  \{Kill\}) \cap  \dom  (ps \rres  \{pasivo\}) \cross  \{muerto\})) \rres  \{activo\});
+apply oplusDef to expression ps \oplus  (\dom  (suscritos \rres  \{Kill\}) \cap  \dom  (ps \rres  \{pasivo\}) \cross  \{muerto\});
+prove by reduce;
+split prim' \in  \dom  (ps \rres  \{pasivo\});
+prove by reduce;
+apply inDom to predicate prim' \in  \dom  (ps \rres  \{pasivo\});
+prove by reduce;
+use Lemma[PID, Estado][F := ps, A := prim', x := pasivo, y := activo];
+prove by reduce;
+\end{zproof}
+
+\begin{zproof}[Teo3]
+apply inDom to predicate e \in  \dom [X, Y] (A \rres [X, Y] \{y\});
+prove by reduce;
+\end{zproof}
+
+\begin{zproof}[Teo2]
+with normalization reduce;
+prove by reduce;
+split \lnot  P \in  \dom [X, Y] (A \rres [X, Y] \{z\});
+prove by reduce;
+apply pfunDef to predicate A \in  X \pfun  Y;
+prove by reduce;
+apply inDom to predicate P \in  \dom [X, Y] (A \rres [X, Y] \{z\});
+prove by reduce;
+\end{zproof}
+
+\begin{zproof}[Inv2\$domainCheck]
+prove by reduce;
+\end{zproof}
+
+\begin{zproof}[InvSSP]
+prove by reduce;
+with normalization reduce;
+\end{zproof}
+
+\begin{zproof}[InvSNP]
+prove by reduce;
+with normalization reduce;
+prove;
+\end{zproof}
+
+\begin{zproof}[invInit]
+prove by reduce;
+\end{zproof}
+
+\begin{zproof}[SistProcSuscritoERR\$domainCheck]
+prove by reduce;
+\end{zproof}
+
+\begin{zproof}[SistSuscProcesoOK\$domainCheck]
+prove;
+\end{zproof}
+
+\begin{zproof}[teO]
+prove by reduce;
+\end{zproof}
+
+\begin{zproof}[ORTriv]
+prove by reduce;
+\end{zproof}
+

@@ -1,0 +1,177 @@
+\begin{zed}
+  [PID]
+\end{zed}
+
+\begin{zed}
+Senal ::= Activate | Suspend | Kill | KillNow
+\end{zed}
+
+\begin{zed}
+Estado ::= activo | pasivo | muerto
+\end{zed}
+
+\begin{zed}
+MSG ::= ok | errProcExist | errProcSuscrito | sinCambios | errProcNoExistente
+\end{zed}
+
+\begin{schema}{SISTEMA}
+  prim: PID\\
+  ps: PID \pfun  Estado\\
+  suscritos: PID \rel  Senal
+\end{schema}
+
+\begin{axdef}
+  idle: PID
+\end{axdef}
+
+\begin{schema}{SISTEMAInit}
+  SISTEMA
+\where
+  prim = idle\\
+  ps = \emptyset\\
+  suscritos = \emptyset
+\end{schema}
+
+\begin{schema}{SistNuevoProcesoOK}
+  \Delta SISTEMA\\
+  i?: PID\\
+  rep!: MSG
+\where
+  i? \notin  \dom  ps\\
+  prim' = prim\\
+  ps' = ps \cup  \{(i? \mapsto  pasivo)\}\\
+  suscritos' = suscritos\\
+  rep! = ok
+\end{schema}
+
+\begin{schema}{SistProcesoExistenteERR}
+  \Xi SISTEMA\\
+  i?: PID\\
+  rep!: MSG
+\where
+  i? \in  \dom  ps\\
+  rep! = errProcExist
+\end{schema}
+
+\begin{schema}{SistProcesoNoExistenteERR}
+  \Xi SISTEMA\\
+  i?: PID\\
+  rep!: MSG
+\where
+  i? \notin  \dom  ps\\
+  rep! = errProcNoExistente
+\end{schema}
+
+\begin{schema}{SistSuscProcesoOK}
+  \Delta SISTEMA\\
+  i?: PID\\
+  s?: Senal\\
+  rep!: MSG
+\where
+  i? \in  \dom  ps\\
+  prim' = prim\\
+  ps' = ps\\
+  suscritos' = suscritos \cup  \{(i? \mapsto  s?)\}\\
+  rep! = ok
+\end{schema}
+
+\begin{schema}{SistActivateOK}
+  \Delta SISTEMA\\
+  rep!: MSG
+\where
+  \dom  (suscritos \rres  \{Activate\}) \cap  \dom  (ps \rres  \{pasivo\}) \neq  \emptyset\\
+  suscritos' = suscritos\\
+  ps' = ps \oplus  (\dom  (suscritos \rres  \{Activate\}) \cap  \dom  (ps \rres  \{pasivo\}) \cross  \{activo\})\\
+  prim' \in  \dom  (suscritos \rres  \{Activate\}) \cap  \dom  (ps \rres  \{pasivo\})\\
+  rep! = ok
+\end{schema}
+
+\begin{schema}{SistActivateSC}
+  \Xi SISTEMA\\
+  rep!: MSG
+\where
+  \dom  (suscritos \rres  \{Activate\}) \cap  \dom  (ps \rres  \{pasivo\}) = \emptyset\\
+  rep! = sinCambios
+\end{schema}
+
+\begin{schema}{SistSuspendOK}
+  \Delta SISTEMA\\
+  rep!: MSG
+\where
+  \dom  (ps \rres  \{activo\}) \setminus  \dom  (suscritos \rres  \{Suspend\}) \neq  \emptyset\\
+  suscritos' = suscritos\\
+  ps' = ps \oplus  (\dom  (suscritos \rres  \{Suspend\}) \cap  \dom  (ps \rres  \{activo\}) \cross  \{pasivo\})\\
+  prim' \in  \dom  (ps \rres  \{activo\}) \setminus  \dom  (suscritos \rres  \{Suspend\})\\
+  rep! = ok
+\end{schema}
+
+\begin{schema}{SistSuspendIdle}
+  \Delta SISTEMA\\
+  rep!: MSG
+\where
+  \dom  (ps \rres  \{activo\}) \setminus  \dom  (suscritos \rres  \{Suspend\}) = \emptyset\\
+  suscritos' = suscritos\\
+  ps' = ps \oplus  (\dom  (ps \rres  \{activo\}) \cross  \{pasivo\})\\
+  prim' = idle\\
+  rep! = ok
+\end{schema}
+
+\begin{schema}{SistKillNowOK}
+  \Delta SISTEMA\\
+  rep!: MSG
+\where
+  \dom  (ps \rres  \{activo\}) \setminus  \dom  (suscritos \rres  \{KillNow\}) \neq  \emptyset\\
+  suscritos' = suscritos\\
+  ps' = ps \oplus  (\dom  (suscritos \rres  \{KillNow\}) \cap  \dom  (ps \rres  \{activo\}) \cross  \{muerto\})\\
+  prim' \in  \dom  (ps \rres  \{activo\}) \setminus  \dom  (suscritos \rres  \{KillNow\})\\
+  rep! = ok
+\end{schema}
+
+\begin{schema}{SistKillNowIdle}
+  \Delta SISTEMA\\
+  rep!: MSG
+\where
+  \dom  (ps \rres  \{activo\}) \setminus  \dom  (suscritos \rres  \{KillNow\}) = \emptyset\\
+  suscritos' = suscritos\\
+  ps' = ps \oplus  (\dom  (ps \rres  \{activo\}) \cross  \{muerto\})\\
+  prim' = idle\\
+  rep! = ok
+\end{schema}
+
+\begin{schema}{SistKill}
+  \Delta SISTEMA\\
+  rep!: MSG
+\where
+  suscritos' = suscritos\\
+  ps' = ps \oplus  (\dom  (suscritos \rres  \{Kill\}) \cap  \dom  (ps \rres  \{pasivo\}) \cross  \{muerto\})\\
+  prim' = prim\\
+  rep! = ok
+\end{schema}
+
+\begin{schema}{Inv1}
+  SISTEMA
+\where
+  prim = idle \lor  prim \in  \dom  (ps \rres  \{activo\})
+\end{schema}
+
+\begin{zed}
+SistNuevoProceso == SistNuevoProcesoOK \lor  SistProcesoExistenteERR
+\end{zed}
+
+\begin{zed}
+SistSuscProceso == SistSuscProcesoOK \lor  SistProcesoNoExistenteERR
+\end{zed}
+
+\begin{zed}
+SistActivate == SistActivateOK \lor  SistActivateSC
+\end{zed}
+
+\begin{zed}
+SistSuspend == SistSuspendOK \lor  SistSuspendIdle
+\end{zed}
+
+\begin{zed}
+SistKillNow == SistKillNowOK \lor  SistKillNowIdle
+\end{zed}
+
+

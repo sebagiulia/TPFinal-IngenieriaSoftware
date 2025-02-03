@@ -1,0 +1,13 @@
+sistemaInit(Prim, Ps, Susc) 
+& sistNuevoProc(Prim, Ps, Susc, A, Rep_o, Prim1, Ps1, Susc1) 
+& sistNuevoProc(Prim1, Ps1, Susc1, B, Rep_o1, Prim2, Ps2, Susc2) 
+& sistSuscProceso(Prim2, Ps2, Susc2, C, activate, Rep_o2, Prim3, Ps3, Susc3) 
+& sistSuscProceso(Prim3, Ps3, Susc3, B, kill, Rep_o3, Prim4, Ps4, Susc4) 
+& sistNuevoProc(Prim4, Ps4, Susc4, C, Rep_o4, Prim5, Ps5, Susc5) 
+& sistSuscProceso(Prim5, Ps5, Susc5, C, activate, Rep_o5, Prim6, Ps6, Susc6) 
+& sistSuscProceso(Prim6, Ps6, Susc6, A, kill, Rep_o6, Prim7, Ps7, Susc7) 
+& sistActivate(Prim7, Ps7, Susc7, Prim8, Ps8, Susc8, Rep_o7) 
+& sistSuspend(Ps8, Susc8, Prim9, Ps9, Susc9, Rep_o8)
+& sistSuscProceso(Prim9, Ps9, Susc9, C, killNow, Rep_o9, Prim10, Ps10, Susc10) 
+& sistKill(Prim10, Ps10, Susc10, Prim11, Ps11, Susc11, Rep_o10)
+& sistKillNow(Ps11, Susc11, Prim12, Ps12, Susc12, Rep_o11).

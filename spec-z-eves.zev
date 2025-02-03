@@ -1,0 +1,180 @@
+<Z-EVES-GUI-State version="1" index="64"><textItem history="2" location="gui::2"><zed-box location="gui::2">[PID]</zed-box></textItem
+><textItem history="3" location="gui::3"><zed-box location="gui::3">Senal ::= Activate | Suspend | Kill | KillNow</zed-box></textItem
+><textItem history="4" location="gui::5"><zed-box location="gui::5">Estado ::= activo | pasivo | muerto</zed-box></textItem
+><textItem history="5" location="gui::6"><zed-box location="gui::6">MSG ::= ok | errProcExist | errProcSuscrito | sinCambios | errProcNoExistente</zed-box></textItem
+><textItem history="6" location="/home/seba/Escritorio/IS-2/zed.zed:1"><schema-box location="/home/seba/Escritorio/IS-2/zed.zed:1">SISTEMA<decl-part/>  prim: PID
+ps: PID &rarrb; Estado
+suscritos: PID &lrarr; Senal</schema-box></textItem
+><textItem history="7" location="/home/seba/Escritorio/IS-2/zed.zed:2"><axiomatic-box><decl-part/>     idle : PID </axiomatic-box></textItem
+><textItem history="8" location="/home/seba/Escritorio/IS-2/zed.zed:3"><schema-box location="/home/seba/Escritorio/IS-2/zed.zed:3">SISTEMAInit<decl-part/> SISTEMA<ax-part/> prim = idle
+ps = &empty;
+suscritos = &empty;</schema-box></textItem
+><textItem history="9" location="/home/seba/Escritorio/IS-2/zed.zed:4"><schema-box location="/home/seba/Escritorio/IS-2/zed.zed:4">SistNuevoProcesoOK<decl-part/>       &Delta;SISTEMA
+    i? : PID
+    rep! : MSG
+    <ax-part/>      i? &notin; <word style="roman"/>dom<word/> ps
+    prim' = prim 
+    ps' = ps &cup;{i? &rtarr;pasivo}
+    suscritos' = suscritos
+    rep! = ok 
+</schema-box></textItem
+><textItem history="10" location="/home/seba/Escritorio/IS-2/zed.zed:5"><schema-box location="/home/seba/Escritorio/IS-2/zed.zed:5">SistProcesoExistenteERR<decl-part/>      &Xi;SISTEMA
+    i? : PID
+    rep! : MSG
+    <ax-part/>     i? &isin;<word style="roman"/>dom<word/>  ps 
+    rep! = errProcExist 
+</schema-box></textItem
+><textItem history="11" location="gui::64"><schema-box location="gui::64">SistProcesoNoExistenteERR<decl-part/> &Xi;SISTEMA
+i?: PID
+rep!: MSG<ax-part/> i? &notin; <word style="roman"/>dom<word/> ps
+rep! = errProcNoExistente</schema-box></textItem
+><textItem history="12" location="/home/seba/Escritorio/IS-2/zed.zed:6"><schema-box location="/home/seba/Escritorio/IS-2/zed.zed:6">SistSuscProcesoOK<decl-part/>  &Delta;SISTEMA
+i?: PID
+s?: Senal
+rep!: MSG<ax-part/>  i? &isin; <word style="roman"/>dom<word/> ps
+prim' = prim
+ps' = ps
+suscritos' = suscritos &cup; {(i? &rtarr; s?)}
+rep! = ok</schema-box></textItem
+><textItem history="13" location="/home/seba/Escritorio/IS-2/zed.zed:8"><schema-box location="/home/seba/Escritorio/IS-2/zed.zed:8">SistActivateOK<decl-part/>  &Delta;SISTEMA
+rep!: MSG<ax-part/>  <word style="roman"/>dom<word/> (suscritos &vrtri; {Activate}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {pasivo}) &neq; &empty;
+suscritos' = suscritos
+ps' = ps &oplus; (<word style="roman"/>dom<word/> (suscritos &vrtri; {Activate}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {pasivo}) &cross; {activo})
+prim' &isin; <word style="roman"/>dom<word/> (suscritos &vrtri; {Activate}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {pasivo})
+rep! = ok</schema-box></textItem
+><textItem history="14" location="/home/seba/Escritorio/IS-2/news.zed:1"><schema-box location="/home/seba/Escritorio/IS-2/news.zed:1">SistActivateSC<decl-part/> &Xi;SISTEMA
+rep!: MSG<ax-part/> <word style="roman"/>dom<word/> (suscritos &vrtri; {Activate}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {pasivo}) = &empty;
+rep! = sinCambios</schema-box></textItem
+><textItem history="15" location="/home/seba/Escritorio/IS-2/zed.zed:9"><schema-box location="/home/seba/Escritorio/IS-2/zed.zed:9">SistSuspendOK<decl-part/> &Delta;SISTEMA
+rep!: MSG<ax-part/> <word style="roman"/>dom<word/> (ps &vrtri; {activo}) \ <word style="roman"/>dom<word/> (suscritos &vrtri; {Suspend}) &neq; &empty;
+suscritos' = suscritos
+ps' = ps &oplus; (<word style="roman"/>dom<word/> (suscritos &vrtri; {Suspend}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {activo}) &cross; {pasivo})
+prim' &isin; <word style="roman"/>dom<word/> (ps &vrtri; {activo}) \ <word style="roman"/>dom<word/> (suscritos &vrtri; {Suspend})
+rep! = ok</schema-box></textItem
+><textItem history="16" location="/home/seba/Escritorio/IS-2/news.zed:2"><schema-box location="/home/seba/Escritorio/IS-2/news.zed:2">SistSuspendIdle<decl-part/> &Delta;SISTEMA
+rep!: MSG<ax-part/> <word style="roman"/>dom<word/> (ps &vrtri; {activo}) \ <word style="roman"/>dom<word/> (suscritos &vrtri; {Suspend}) = &empty;
+suscritos' = suscritos
+ps' = ps &oplus; (<word style="roman"/>dom<word/> (ps &vrtri; {activo}) &cross; {pasivo})
+prim' = idle
+rep! = ok</schema-box></textItem
+><textItem history="17" location="/home/seba/Escritorio/IS-2/news.zed:3"><schema-box location="/home/seba/Escritorio/IS-2/news.zed:3">SistKillNowOK<decl-part/> &Delta;SISTEMA
+rep!: MSG<ax-part/> <word style="roman"/>dom<word/> (ps &vrtri; {activo}) \ <word style="roman"/>dom<word/> (suscritos &vrtri; {KillNow}) &neq; &empty;
+suscritos' = suscritos
+ps' = ps &oplus; (<word style="roman"/>dom<word/> (suscritos &vrtri; {KillNow}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {activo}) &cross; {muerto})
+prim' &isin; <word style="roman"/>dom<word/> (ps &vrtri; {activo}) \ <word style="roman"/>dom<word/> (suscritos &vrtri; {KillNow})
+rep! = ok</schema-box></textItem
+><textItem history="18" location="/home/seba/Escritorio/IS-2/news.zed:4"><schema-box location="/home/seba/Escritorio/IS-2/news.zed:4">SistKillNowIdle<decl-part/> &Delta;SISTEMA
+rep!: MSG<ax-part/> <word style="roman"/>dom<word/> (ps &vrtri; {activo}) \ <word style="roman"/>dom<word/> (suscritos &vrtri; {KillNow}) = &empty;
+suscritos' = suscritos
+ps' = ps &oplus; (<word style="roman"/>dom<word/> (ps &vrtri; {activo}) &cross; {muerto})
+prim' = idle
+rep! = ok</schema-box></textItem
+><textItem history="19" location="/home/seba/Escritorio/IS-2/zed.zed:10"><schema-box location="/home/seba/Escritorio/IS-2/zed.zed:10">SistKill<decl-part/> &Delta;SISTEMA
+rep!: MSG<ax-part/> suscritos' = suscritos
+ps' = ps &oplus; (<word style="roman"/>dom<word/> (suscritos &vrtri; {Kill}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {pasivo}) &cross; {muerto})
+prim' = prim
+rep! = ok</schema-box></textItem
+><textItem history="20" location="/home/seba/Escritorio/IS-2/zed.zed:12"><schema-box location="/home/seba/Escritorio/IS-2/zed.zed:12">Inv1<decl-part/> SISTEMA<ax-part/> prim = idle &vee; prim &isin; <word style="roman"/>dom<word/> (ps &vrtri; {activo})</schema-box></textItem
+><textItem history="21" location="gui::9"><zed-box location="gui::9">SistNuevoProceso &eqhat; SistNuevoProcesoOK &vee; SistProcesoExistenteERR</zed-box></textItem
+><textItem history="22" location="gui::7"><zed-box location="gui::7">SistSuscProceso &eqhat; SistSuscProcesoOK &vee; SistProcesoNoExistenteERR</zed-box></textItem
+><textItem history="23" location="gui::12"><zed-box location="gui::12">SistActivate &eqhat; SistActivateOK &vee; SistActivateSC</zed-box></textItem
+><textItem history="24" location="gui::13"><zed-box location="gui::13">SistSuspend &eqhat; SistSuspendOK &vee; SistSuspendIdle</zed-box></textItem
+><textItem history="25" location="gui::14"><zed-box location="gui::14">SistKillNow &eqhat; SistKillNowOK &vee; SistKillNowIdle</zed-box></textItem
+><textItem history="26" location="gui::26"><theorem-def location="gui::26">InvNP<ax-part/>   Inv1 &wedge; SistNuevoProceso &rArr; Inv1'</theorem-def></textItem
+><textItem history="27" location="gui::27"><theorem-def location="gui::27">InvSP<ax-part/>   Inv1 &wedge; SistSuscProceso &rArr; Inv1'</theorem-def></textItem
+><textItem history="28" location="gui::30"><theorem-def location="gui::30">InvSA<ax-part/>   Inv1 &wedge; SistActivate &rArr; Inv1'</theorem-def></textItem
+><textItem history="29" location="gui::37"><theorem-def location="gui::37">InvSS<ax-part/>   Inv1 &wedge; SistSuspend &rArr; Inv1'</theorem-def></textItem
+><textItem history="30" location="gui::40"><theorem-def location="gui::40">InvSKN<ax-part/>   Inv1 &wedge; SistKillNow &rArr; Inv1'</theorem-def></textItem
+><textItem history="31" location="gui::58"><theorem-def usage="rule" location="gui::58" ability="disabled"> Lemma[X, Y]<ax-part/>   &forall; A: X; F: X &rarrb; Y; x, y: Y | x &neq; y &wedge; (A, x) &isin; F &bullet; (A, y) &notin; F</theorem-def></textItem
+><textItem history="32" location="gui::41"><theorem-def location="gui::41">InvSK<ax-part/>   Inv1 &wedge; SistKill &rArr; Inv1'</theorem-def></textItem
+><script name="Lemma"><scriptItem number="2"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="3"><ztext>apply pfunDef to predicate F &isin; X &rarrb; Y</ztext></scriptItem
+><scriptItem number="4"><ztext>split F &isin; X &lrarr; Y</ztext></scriptItem
+><scriptItem number="5"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="6"><ztext>apply inPower to predicate F &suptilde;<word style="roman"/>[<word/>X<word style="roman"/>,<word/> Y<word style="roman"/>]<word/> &fatsemi;<word style="roman"/>[<word/>Y<word style="roman"/>,<word/> X<word style="roman"/>,<word/> Y<word style="roman"/>]<word/> F &isin; &Popf; (<word style="roman"/>id<word/> Y)</ztext></scriptItem
+><scriptItem number="7"><ztext>apply compDef to expression F &suptilde;<word style="roman"/>[<word/>X<word style="roman"/>,<word/> Y<word style="roman"/>]<word/> &fatsemi;<word style="roman"/>[<word/>Y<word style="roman"/>,<word/> X<word style="roman"/>,<word/> Y<word style="roman"/>]<word/> F</ztext></scriptItem
+><scriptItem number="8"><ztext>split &not; (A, y) &isin; F</ztext></scriptItem
+><scriptItem number="9"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="10"><ztext>instantiate  e == (x,y)</ztext></scriptItem
+><scriptItem number="11"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="12"><ztext>instantiate   y__0 == A</ztext></scriptItem
+><scriptItem number="13"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="14"><ztext>prove by reduce</ztext></scriptItem
+></script
+><script name="InvSA"><scriptItem number="2"><ztext>with normalization reduce</ztext></scriptItem
+><scriptItem number="3"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="4"><ztext>cases</ztext></scriptItem
+><scriptItem number="5"><ztext>apply oplusDef to expression ps &oplus; (<word style="roman"/>dom<word/> (suscritos &vrtri; {Activate}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {pasivo}) &cross; {activo})</ztext></scriptItem
+><scriptItem number="6"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="7"><ztext>apply domDefinition to expression <word style="roman"/>dom<word/> ((<word style="roman"/>dom<word/> (suscritos &vrtri; {Activate}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {pasivo}) &cross; {activo}) &vrtri; {activo})</ztext></scriptItem
+><scriptItem number="8"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="9"><ztext>next</ztext></scriptItem
+><scriptItem number="10"><ztext>apply oplusDef to expression ps &oplus; (<word style="roman"/>dom<word/> (suscritos &vrtri; {Activate}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {pasivo}) &cross; {activo})</ztext></scriptItem
+><scriptItem number="11"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="12"><ztext>apply domDefinition to expression <word style="roman"/>dom<word/> ((<word style="roman"/>dom<word/> (suscritos &vrtri; {Activate}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {pasivo}) &cross; {activo}) &vrtri; {activo})</ztext></scriptItem
+><scriptItem number="13"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="14"><ztext>next</ztext></scriptItem
+></script
+><script name="Teo3"><scriptItem><ztext>apply inDom to predicate e &isin; <word style="roman"/>dom<word/><word style="roman"/>[<word/>X<word style="roman"/>,<word/> Y<word style="roman"/>]<word/> (A &vrtri;<word style="roman"/>[<word/>X<word style="roman"/>,<word/> Y<word style="roman"/>]<word/> {y})</ztext><provercmd name="apply-to-predicate"><name kind="expr" ident="inDom"></name><relchain><name kind="expr" ident="e"></name><name class="other" kind="expr" ident="&isin;"></name><application><name kind="expr" ident="dom" style="roman"><genactuals><name kind="expr" ident="X"></name><name kind="expr" ident="Y"></name></genactuals></name><parenform kind="expr"><op kind="expr" type="inop"><name class="infun" kind="expr" ident="&vrtri;"><genactuals><name kind="expr" ident="X"></name><name kind="expr" ident="Y"></name></genactuals></name><name kind="expr" ident="A"></name><display type="set"><name kind="expr" ident="y"></name></display></op></parenform></application></relchain></provercmd></scriptItem
+><scriptItem><ztext>prove by reduce</ztext><provercmd name="prove-by-reduce"></provercmd></scriptItem
+></script
+><script name="Teo2"><scriptItem><ztext>with normalization reduce</ztext><provercmd name="with-normalization"><provercmd name="reduce"></provercmd></provercmd></scriptItem
+><scriptItem><ztext>prove by reduce</ztext><provercmd name="prove-by-reduce"></provercmd></scriptItem
+><scriptItem><ztext>split &not; P &isin; <word style="roman"/>dom<word/><word style="roman"/>[<word/>X<word style="roman"/>,<word/> Y<word style="roman"/>]<word/> (A &vrtri;<word style="roman"/>[<word/>X<word style="roman"/>,<word/> Y<word style="roman"/>]<word/> {z})</ztext><provercmd name="split"><op kind="pred" type="preop"><name class="other" kind="expr" ident="&not;"></name><relchain><name kind="expr" ident="P"></name><name class="other" kind="expr" ident="&isin;"></name><application><name kind="expr" ident="dom" style="roman"><genactuals><name kind="expr" ident="X"></name><name kind="expr" ident="Y"></name></genactuals></name><parenform kind="expr"><op kind="expr" type="inop"><name class="infun" kind="expr" ident="&vrtri;"><genactuals><name kind="expr" ident="X"></name><name kind="expr" ident="Y"></name></genactuals></name><name kind="expr" ident="A"></name><display type="set"><name kind="expr" ident="z"></name></display></op></parenform></application></relchain></op></provercmd></scriptItem
+><scriptItem><ztext>prove by reduce</ztext><provercmd name="prove-by-reduce"></provercmd></scriptItem
+><scriptItem><ztext>apply pfunDef to predicate A &isin; X &rarrb; Y</ztext><provercmd name="apply-to-predicate"><name kind="expr" ident="pfunDef"></name><relchain><name kind="expr" ident="A"></name><name class="other" kind="expr" ident="&isin;"></name><op kind="expr" type="inop"><name class="ingen" kind="expr" ident="&rarrb;"></name><name kind="expr" ident="X"></name><name kind="expr" ident="Y"></name></op></relchain></provercmd></scriptItem
+><scriptItem><ztext>prove by reduce</ztext><provercmd name="prove-by-reduce"></provercmd></scriptItem
+><scriptItem><ztext>apply inDom to predicate P &isin; <word style="roman"/>dom<word/><word style="roman"/>[<word/>X<word style="roman"/>,<word/> Y<word style="roman"/>]<word/> (A &vrtri;<word style="roman"/>[<word/>X<word style="roman"/>,<word/> Y<word style="roman"/>]<word/> {z})</ztext><provercmd name="apply-to-predicate"><name kind="expr" ident="inDom"></name><relchain><name kind="expr" ident="P"></name><name class="other" kind="expr" ident="&isin;"></name><application><name kind="expr" ident="dom" style="roman"><genactuals><name kind="expr" ident="X"></name><name kind="expr" ident="Y"></name></genactuals></name><parenform kind="expr"><op kind="expr" type="inop"><name class="infun" kind="expr" ident="&vrtri;"><genactuals><name kind="expr" ident="X"></name><name kind="expr" ident="Y"></name></genactuals></name><name kind="expr" ident="A"></name><display type="set"><name kind="expr" ident="z"></name></display></op></parenform></application></relchain></provercmd></scriptItem
+><scriptItem><ztext>prove by reduce</ztext><provercmd name="prove-by-reduce"></provercmd></scriptItem
+></script
+><script name="Inv2$domainCheck"><scriptItem><ztext>prove by reduce</ztext><provercmd name="prove-by-reduce"></provercmd></scriptItem
+></script
+><script name="InvSSP"><scriptItem><ztext>prove by reduce</ztext><provercmd name="prove-by-reduce"></provercmd></scriptItem
+><scriptItem><ztext>with normalization reduce</ztext><provercmd name="with-normalization"><provercmd name="reduce"></provercmd></provercmd></scriptItem
+></script
+><script name="InvSK"><scriptItem number="2"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="3"><ztext>apply inDom to predicate prim &isin; <word style="roman"/>dom<word/> (ps &vrtri; {activo})</ztext></scriptItem
+><scriptItem number="4"><ztext>apply inDom to predicate prim' &isin; <word style="roman"/>dom<word/> ((ps &oplus; (<word style="roman"/>dom<word/> (suscritos &vrtri; {Kill}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {pasivo}) &cross; {muerto})) &vrtri; {activo})</ztext></scriptItem
+><scriptItem number="5"><ztext>apply oplusDef to expression ps &oplus; (<word style="roman"/>dom<word/> (suscritos &vrtri; {Kill}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {pasivo}) &cross; {muerto})</ztext></scriptItem
+><scriptItem number="6"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="7"><ztext>split prim' &isin; <word style="roman"/>dom<word/> (ps &vrtri; {pasivo})</ztext></scriptItem
+><scriptItem number="8"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="9"><ztext>apply inDom to predicate prim' &isin; <word style="roman"/>dom<word/> (ps &vrtri; {pasivo})</ztext></scriptItem
+><scriptItem number="10"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="11"><ztext>use   Lemma[PID,Estado][F:=ps, A:= prim',x:=pasivo,y:=activo]</ztext></scriptItem
+><scriptItem number="12"><ztext>prove by reduce</ztext></scriptItem
+></script
+><script name="InvSNP"><scriptItem><ztext>prove by reduce</ztext><provercmd name="prove-by-reduce"></provercmd></scriptItem
+><scriptItem><ztext>with normalization reduce</ztext><provercmd name="with-normalization"><provercmd name="reduce"></provercmd></provercmd></scriptItem
+><scriptItem><ztext>prove</ztext><provercmd name="prove-by-rewrite"></provercmd></scriptItem
+></script
+><script name="InvSKN"><scriptItem number="2"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="3"><ztext>apply inDom to predicate prim' &isin; <word style="roman"/>dom<word/> (ps &vrtri; {activo})</ztext></scriptItem
+><scriptItem number="4"><ztext>apply inDom to predicate prim' &isin; <word style="roman"/>dom<word/> ((ps &oplus; (<word style="roman"/>dom<word/> (suscritos &vrtri; {KillNow}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {activo}) &cross; {muerto})) &vrtri; {activo})</ztext></scriptItem
+><scriptItem number="5"><ztext>apply oplusDef to expression ps &oplus; (<word style="roman"/>dom<word/> (suscritos &vrtri; {KillNow}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {activo}) &cross; {muerto})</ztext></scriptItem
+><scriptItem number="6"><ztext>prove by reduce</ztext></scriptItem
+></script
+><script name="invInit"><scriptItem><ztext>prove by reduce</ztext><provercmd name="prove-by-reduce"></provercmd></scriptItem
+></script
+><script name="SistProcSuscritoERR$domainCheck"><scriptItem><ztext>prove by reduce</ztext><provercmd name="prove-by-reduce"></provercmd></scriptItem
+></script
+><script name="InvSS"><scriptItem number="2"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="3"><ztext>apply inDom to predicate prim' &isin; <word style="roman"/>dom<word/> (ps &vrtri; {activo})</ztext></scriptItem
+><scriptItem number="4"><ztext>apply inDom to predicate prim' &isin; <word style="roman"/>dom<word/> ((ps &oplus; (<word style="roman"/>dom<word/> (suscritos &vrtri; {Suspend}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {activo}) &cross; {pasivo})) &vrtri; {activo})</ztext></scriptItem
+><scriptItem number="5"><ztext>apply oplusDef to expression ps &oplus; (<word style="roman"/>dom<word/> (suscritos &vrtri; {Suspend}) &cap; <word style="roman"/>dom<word/> (ps &vrtri; {activo}) &cross; {pasivo})</ztext></scriptItem
+><scriptItem number="6"><ztext>prove by reduce</ztext></scriptItem
+></script
+><script name="InvSP"><scriptItem number="2"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="3"><ztext>with normalization reduce</ztext></scriptItem
+></script
+><script name="SistSuscProcesoOK$domainCheck"><scriptItem><ztext>prove</ztext><provercmd name="prove-by-rewrite"></provercmd></scriptItem
+></script
+><script name="InvNP"><scriptItem number="2"><ztext>prove by reduce</ztext></scriptItem
+><scriptItem number="3"><ztext>with normalization reduce</ztext></scriptItem
+><scriptItem number="4"><ztext>prove</ztext></scriptItem
+></script
+><script name="teO"><scriptItem><ztext>prove by reduce</ztext><provercmd name="prove-by-reduce"></provercmd></scriptItem
+></script
+><script name="ORTriv"><scriptItem><ztext>prove by reduce</ztext><provercmd name="prove-by-reduce"></provercmd></scriptItem
+></script
+></Z-EVES-GUI-State>
